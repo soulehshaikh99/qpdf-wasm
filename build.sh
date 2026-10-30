@@ -48,7 +48,7 @@ cmake --build build -j 4
 
 mkdir -p "$ROOT/dist"
 
-emcc \
+em++ \
   $LDFLAGS \
   $CPPFLAGS \
   $CFLAGS \
@@ -56,7 +56,6 @@ emcc \
   --closure 1 \
   --pre-js "$ROOT/js/pre.js" \
   --post-js "$ROOT/js/post.js" \
-  -s WASM_BIGINT=1 \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s EXPORTED_RUNTIME_METHODS='["callMain","FS","NODEFS","WORKERFS","ENV"]' \
   -s INCOMING_MODULE_JS_API='["noInitialRun","noFSInit","locateFile","preRun"]' \

@@ -1,8 +1,8 @@
-diff --git a/jchuff.c b/jchuff.c
-index 8ff817b..d87f2ff 100644
---- a/jchuff.c
-+++ b/jchuff.c
-@@ -92,7 +92,7 @@ typedef bit_buf_type simd_bit_buf_type;
+diff --git a/src/jchuff.c b/src/jchuff.c
+index a1ee759..1029f6b 100644
+--- a/src/jchuff.c
++++ b/src/jchuff.c
+@@ -59,7 +59,7 @@ typedef bit_buf_type simd_bit_buf_type;
  #if (defined(SIZEOF_SIZE_T) && SIZEOF_SIZE_T == 8) || defined(_WIN64) || \
      (defined(__x86_64__) && defined(__ILP32__))
  #define BIT_BUF_SIZE  64
