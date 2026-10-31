@@ -23,7 +23,7 @@ jobs:
           context: .
           push: false
           load: true
-          tags: neslinesli93/qpdf-wasm:latest
+          tags: soulehshaikh99/qpdf-wasm:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -31,7 +31,7 @@ jobs:
         uses: shrink/actions-docker-extract@v3
         id: extract
         with:
-          image: neslinesli93/qpdf-wasm:latest
+          image: soulehshaikh99/qpdf-wasm:latest
           path: /opt/qpdf/.
 
       - name: Copy artifacts
@@ -40,7 +40,7 @@ jobs:
       - name: Tests
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - run: |
           yarn
           yarn test
