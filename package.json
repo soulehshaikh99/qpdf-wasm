@@ -20,7 +20,7 @@
   "dependencies": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/soulehshaikh99/qpdf-wasm.git"
+    "url": "git+https://github.com/soulehshaikh99/qpdf-wasm.git"
   },
   "homepage": "https://github.com/soulehshaikh99/qpdf-wasm"
 }
