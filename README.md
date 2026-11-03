@@ -97,11 +97,13 @@ The package ships three files in `dist/`:
 
 ## Quick start
 
+Browser, with a bundler (Vite, webpack). For Node.js, see [Node.js](#nodejs): there you omit `locateFile` and use `fs` instead of `fetch`.
+
 ```js
 import createModule from "@soulehshaikh99/qpdf-wasm";
 
 const qpdf = await createModule({
-  // Must return a URL (browser) or path (Node) where qpdf.wasm can be fetched.
+  // Browser only: must return the URL where qpdf.wasm is served (see Bundler setup).
   locateFile: () => "/wasm/qpdf.wasm",
 });
 
@@ -116,6 +118,7 @@ const exitCode = qpdf.callMain(["/input.pdf", "--pages", ".", "1-2", "--", "/out
 if (exitCode === 0 || exitCode === 3) {
   const output = qpdf.FS.readFile("/output.pdf");
   const url = URL.createObjectURL(new Blob([output], { type: "application/pdf" }));
+  window.open(url);
 }
 ```
 
@@ -160,8 +163,9 @@ Requires **Node.js 20 or newer**.
 Mount a real directory with `NODEFS` so qpdf reads and writes your disk directly:
 
 ```js
-const path = require("path");
-const createModule = require("@soulehshaikh99/qpdf-wasm");
+// main.mjs (or main.js with "type": "module" in package.json)
+import { fileURLToPath } from "node:url";
+import createModule from "@soulehshaikh99/qpdf-wasm";
 
 async function run(args, dir) {
   const qpdf = await createModule();
@@ -173,12 +177,14 @@ async function run(args, dir) {
 
 const code = await run(
   ["input.pdf", "--pages", ".", "1-2", "--", "output.pdf"],
-  path.resolve(__dirname, "pdfs")
+  fileURLToPath(new URL("./pdfs", import.meta.url))
 );
 console.log("exit code:", code);
 ```
 
-In Node, `locateFile` is optional. The loader finds `qpdf.wasm` next to `qpdf.js`.
+CommonJS works too: `const createModule = require("@soulehshaikh99/qpdf-wasm")`. Use `path.resolve(__dirname, "pdfs")`, and wrap the `await` in an async function, because CommonJS has no top-level `await`.
+
+In Node, leave out `locateFile`. The loader finds `qpdf.wasm` next to `qpdf.js`. A browser-style URL such as `"/wasm/qpdf.wasm"` resolves to the drive root (for example `C:\wasm\qpdf.wasm`) and fails with `ENOENT`.
 
 ### Browser (main thread)
 
@@ -236,6 +242,8 @@ worker.postMessage({ file: fileInput.files[0], args: ["--linearize"] });
 ### Bundler setup
 
 The `.wasm` file has to be served as a static asset, and `locateFile` has to return its URL.
+
+Browsers can't resolve a bare `import "@soulehshaikh99/qpdf-wasm"` on their own, so you need a bundler (Vite, webpack, ...) or an import map. Serve the page from a dev server: opening it via `file://` stops the wasm from loading.
 
 **Vite.** Import the URL with `?url`:
 
@@ -349,6 +357,7 @@ The declarations cover `callMain`, `FS` (`mkdir`, `mount`, `unmount`, `chdir`, `
 | Symptom | Fix |
 | ------- | --- |
 | `failed to asynchronously prepare wasm` / 404 on `qpdf.wasm` | `locateFile` returns the wrong URL. Open it in the browser and check that it serves the file. |
+| `ENOENT: no such file or directory, open 'C:\wasm\qpdf.wasm'` (Node) | You passed a browser URL to `locateFile` in Node. Remove `locateFile` (the loader finds the wasm itself) or return an absolute filesystem path. |
 | `Incorrect response MIME type. Expected 'application/wasm'` | Configure your server to send `Content-Type: application/wasm` for `.wasm` files. |
 | `Module not found: Can't resolve 'fs'` (webpack/Next.js) | Add the `resolve.fallback` config from [Bundler setup](#bundler-setup). |
 | `ReferenceError: window is not defined` in Next.js | You are loading qpdf during SSR. Load it in a client component only. |
