@@ -3,6 +3,8 @@ declare module "@soulehshaikh99/qpdf-wasm" {
     locateFile?: (path: string, prefix: string) => string;
     noInitialRun?: boolean;
     preRun?: Array<(module: QpdfInstance) => void>;
+    /** Name qpdf uses for itself in messages (argv[0]). Default "qpdf". */
+    thisProgram?: string;
   }
 
   interface QpdfModule {

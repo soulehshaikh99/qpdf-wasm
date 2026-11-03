@@ -62,7 +62,7 @@ em++ \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s MIN_NODE_VERSION=200000 \
   -s EXPORTED_RUNTIME_METHODS='["callMain","FS","NODEFS","WORKERFS","ENV"]' \
-  -s INCOMING_MODULE_JS_API='["noInitialRun","locateFile","preRun"]' \
+  -s INCOMING_MODULE_JS_API='["noInitialRun","locateFile","preRun","thisProgram"]' \
   -s NO_DISABLE_EXCEPTION_CATCHING=1 \
   -s MODULARIZE=1 \
   -o "$ROOT/dist/qpdf.js" \

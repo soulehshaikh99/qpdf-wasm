@@ -25,7 +25,6 @@ Use it to merge, split, rotate, encrypt, decrypt, linearize, repair and inspect 
 - [Building from source](#building-from-source)
 - [Project layout](#project-layout)
 - [Updating bundled versions](#updating-bundled-versions)
-- [Changelog](#changelog)
 - [Credits](#credits)
 - [License](#license)
 
@@ -35,7 +34,7 @@ Use it to merge, split, rotate, encrypt, decrypt, linearize, repair and inspect 
 
 The upstream package was last built against qpdf 12.2.0 and Emscripten 3.1.74. This fork rebuilds everything on current releases so you get the latest qpdf fixes and up-to-date compression and image libraries.
 
-| Component         | Upstream (`@neslinesli93/qpdf-wasm` 0.3.0) | This fork (`@soulehshaikh99/qpdf-wasm` 0.5.0) |
+| Component         | Upstream (`@neslinesli93/qpdf-wasm` 0.3.0) | This fork (`@soulehshaikh99/qpdf-wasm` 0.4.0) |
 | ----------------- | ------------------------------------------ | ------------------------------------- |
 | qpdf              | 12.2.0                                     | **12.4.2**                            |
 | Emscripten (emsdk)| 3.1.74                                     | **6.0.13**                            |
@@ -50,7 +49,13 @@ Other changes:
 - Removed the `-s WASM_BIGINT=1` flag. BigInt integration is on by default in current Emscripten.
 - Updated the libjpeg-turbo patch for its new source layout (`src/jchuff.c`).
 - `.gitattributes` forces LF line endings on `*.sh`, `*.patch` and `Dockerfile`, so the Docker build also works from a Windows checkout.
-- Same public API as upstream. Migrating means changing the package name.
+- **Fix:** libqpdf is compiled with `-fexceptions`. Upstream built it without exception catching, so the catch blocks inside libqpdf were stripped and password checks on encrypted files and damaged-file recovery (for example a broken xref) aborted instead of working.
+- qpdf messages now start with `qpdf:` instead of the host script name (e.g. `mocha:` in Node, `./this.program` in browsers). Pass `thisProgram` to the factory to use another name.
+- `noFSInit` is no longer an accepted factory option.
+- `ENV` (already exported upstream) is now in the TypeScript declarations.
+- qpdf built as a `Release` static library, and the Docker and build warnings cleared.
+- Test suite grew from 2 to 11 tests (zlib, JPEG, AES-256, broken-xref recovery, linearize, in-memory FS, repeated `callMain`).
+- Otherwise the public API matches upstream. For most users, migrating means changing the package name.
 
 Verified: the Node test suite (`docker compose up`) passes, and the build has been checked in the browser.
 
@@ -66,7 +71,7 @@ Verified: the Node test suite (`docker compose up`) passes, and the build has be
 + import createModule from "@soulehshaikh99/qpdf-wasm";
 ```
 
-Nothing else changes.
+Nothing else changes, unless you passed `noFSInit` (no longer accepted).
 
 ---
 
@@ -423,24 +428,6 @@ Key link flags in [build.sh](build.sh):
 3. If libjpeg-turbo changes its source layout, regenerate [patches/jpeg-turbo.patch](patches/jpeg-turbo.patch).
 4. Run `docker compose up` and confirm the tests pass.
 5. Bump `version` in [package.json](package.json), update the table in [What this fork offers](#what-this-fork-offers), then create a GitHub release. [deploy.yml](.github/workflows/deploy.yml) publishes to npm (needs the `NPM_TOKEN` repo secret).
-
----
-
-## Changelog
-
-### 0.5.0
-
-- **Fix:** libqpdf is now compiled with `-fexceptions`. Before, its internal `try`/`catch` blocks were stripped, so password checks on encrypted files and damaged-file recovery (broken xref) aborted instead of working. If you use 0.4.0 with encrypted or damaged PDFs, upgrade.
-- Removed `noFSInit` from the accepted module options (`INCOMING_MODULE_JS_API`). Passing `noFSInit` to the factory no longer does anything.
-- Minimum runtime is now Node.js 20 (`engines`, `-sMIN_NODE_VERSION=200000`).
-- `ENV` added to the TypeScript declarations.
-- qpdf and libjpeg-turbo built as `Release` static libraries. Removed build warnings.
-- Test suite grew from 2 to 10 tests (zlib, JPEG, AES-256, broken xref recovery, linearize, in-memory FS, repeated `callMain`).
-- Build and CI use npm instead of Yarn.
-
-### 0.4.0
-
-- First release of this fork: qpdf 12.4.2, Emscripten 6.0.13, zlib 1.3.2, libjpeg-turbo 3.2.1.
 
 ---
 

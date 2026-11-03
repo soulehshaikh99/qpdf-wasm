@@ -16,8 +16,15 @@ describe("all", function () {
   it("should report a version", async function () {
     const { code, out } = await run(["--version"]);
     assert.equal(code, 0);
-    // Program name comes from process.argv[1] (e.g. "mocha"), so match only the version.
-    assert.match(out, /version \d+\.\d+\.\d+/);
+    // pre.js defaults thisProgram to "qpdf" instead of process.argv[1].
+    assert.match(out, /^qpdf version \d+\.\d+\.\d+/);
+  });
+
+  it("should accept a custom thisProgram", async function () {
+    const mod = await Module({ thisProgram: "mytool" });
+    const { code, out } = capture(() => mod.callMain(["--version"]));
+    assert.equal(code, 0);
+    assert.match(out, /^mytool version /);
   });
 
   it("should remove pdf pages", async function () {
