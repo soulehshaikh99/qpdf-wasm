@@ -40,7 +40,8 @@ cd "$ROOT/lib/qpdf"
 fn_git_clean
 emcmake cmake -S . -B build \
   -DCMAKE_INSTALL_PREFIX="$OUT_DIR" \
-  -DRANDOM_DEVICE="/dev/random"
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS=OFF
 
 # `-j` needs to be adjusted manually
 # setting to `nproc` crashes my system
@@ -58,7 +59,7 @@ em++ \
   --post-js "$ROOT/js/post.js" \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s EXPORTED_RUNTIME_METHODS='["callMain","FS","NODEFS","WORKERFS","ENV"]' \
-  -s INCOMING_MODULE_JS_API='["noInitialRun","noFSInit","locateFile","preRun"]' \
+  -s INCOMING_MODULE_JS_API='["noInitialRun","locateFile","preRun"]' \
   -s NO_DISABLE_EXCEPTION_CATCHING=1 \
   -s MODULARIZE=1 \
   -o "$ROOT/dist/qpdf.js" \

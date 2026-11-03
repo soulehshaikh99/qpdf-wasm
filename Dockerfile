@@ -1,7 +1,7 @@
 FROM emscripten/emsdk:6.0.13 AS qpdf
 
-RUN apt update && \
-    apt install -y autoconf git pkg-config
+RUN apt-get update && \
+    apt-get install -y autoconf git pkg-config
 
 WORKDIR /src
 
