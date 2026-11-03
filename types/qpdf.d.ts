@@ -14,6 +14,7 @@ declare module "@soulehshaikh99/qpdf-wasm" {
     FS: EmscriptenFS;
     NODEFS: any;
     WORKERFS: any;
+    ENV: Record<string, string>;
   }
 
   interface EmscriptenFS {
