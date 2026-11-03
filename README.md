@@ -25,6 +25,7 @@ Use it to merge, split, rotate, encrypt, decrypt, linearize, repair and inspect 
 - [Building from source](#building-from-source)
 - [Project layout](#project-layout)
 - [Updating bundled versions](#updating-bundled-versions)
+- [Changelog](#changelog)
 - [Credits](#credits)
 - [License](#license)
 
@@ -34,7 +35,7 @@ Use it to merge, split, rotate, encrypt, decrypt, linearize, repair and inspect 
 
 The upstream package was last built against qpdf 12.2.0 and Emscripten 3.1.74. This fork rebuilds everything on current releases so you get the latest qpdf fixes and up-to-date compression and image libraries.
 
-| Component         | Upstream (`@neslinesli93/qpdf-wasm` 0.3.0) | This fork (`@soulehshaikh99/qpdf-wasm` 0.4.0) |
+| Component         | Upstream (`@neslinesli93/qpdf-wasm` 0.3.0) | This fork (`@soulehshaikh99/qpdf-wasm` 0.5.0) |
 | ----------------- | ------------------------------------------ | ------------------------------------- |
 | qpdf              | 12.2.0                                     | **12.4.2**                            |
 | Emscripten (emsdk)| 3.1.74                                     | **6.0.13**                            |
@@ -369,7 +370,7 @@ This runs these steps:
 1. Builds the `emscripten/emsdk:6.0.13` stage and shallow clones zlib, libjpeg-turbo and qpdf at pinned commits.
 2. Runs [build.sh](build.sh), which compiles zlib and libjpeg-turbo (patched, SIMD off) as static libs, then qpdf, then links `dist/qpdf.js` and `dist/qpdf.wasm` with `em++`.
 3. Copies the artifacts into a `node:24` image. The entrypoint puts them in `./dist`.
-4. Runs `yarn && yarn test` (mocha, [tests/all.js](tests/all.js)).
+4. Runs `npm ci && npm test` (mocha, [tests/all.js](tests/all.js)).
 
 When it finishes, `./dist` holds a ready-to-publish build.
 
@@ -406,7 +407,7 @@ Key link flags in [build.sh](build.sh):
 ├── types/
 │   └── qpdf.d.ts           # TypeScript declarations (copied to dist/)
 ├── tests/
-│   ├── all.js              # mocha tests (page extraction, error exit codes)
+│   ├── all.js              # mocha tests (qpdf ops, zlib, JPEG, AES, recovery, FS)
 │   └── assets/sample.pdf
 └── .github/workflows/
     ├── ci.yml              # build + test on every push
@@ -422,6 +423,24 @@ Key link flags in [build.sh](build.sh):
 3. If libjpeg-turbo changes its source layout, regenerate [patches/jpeg-turbo.patch](patches/jpeg-turbo.patch).
 4. Run `docker compose up` and confirm the tests pass.
 5. Bump `version` in [package.json](package.json), update the table in [What this fork offers](#what-this-fork-offers), then create a GitHub release. [deploy.yml](.github/workflows/deploy.yml) publishes to npm (needs the `NPM_TOKEN` repo secret).
+
+---
+
+## Changelog
+
+### 0.5.0
+
+- **Fix:** libqpdf is now compiled with `-fexceptions`. Before, its internal `try`/`catch` blocks were stripped, so password checks on encrypted files and damaged-file recovery (broken xref) aborted instead of working. If you use 0.4.0 with encrypted or damaged PDFs, upgrade.
+- Removed `noFSInit` from the accepted module options (`INCOMING_MODULE_JS_API`). Passing `noFSInit` to the factory no longer does anything.
+- Minimum runtime is now Node.js 20 (`engines`, `-sMIN_NODE_VERSION=200000`).
+- `ENV` added to the TypeScript declarations.
+- qpdf and libjpeg-turbo built as `Release` static libraries. Removed build warnings.
+- Test suite grew from 2 to 10 tests (zlib, JPEG, AES-256, broken xref recovery, linearize, in-memory FS, repeated `callMain`).
+- Build and CI use npm instead of Yarn.
+
+### 0.4.0
+
+- First release of this fork: qpdf 12.4.2, Emscripten 6.0.13, zlib 1.3.2, libjpeg-turbo 3.2.1.
 
 ---
 

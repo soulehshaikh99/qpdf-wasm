@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    command: bash -c 'yarn && yarn test'
+    command: bash -c 'npm ci && npm test'
     volumes:
       - "$PWD:/src"
     ports:

@@ -42,8 +42,8 @@ jobs:
         with:
           node-version: 24
       - run: |
-          yarn
-          yarn test
+          npm ci
+          npm test
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
