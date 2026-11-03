@@ -58,6 +58,7 @@ em++ \
   --pre-js "$ROOT/js/pre.js" \
   --post-js "$ROOT/js/post.js" \
   -s ALLOW_MEMORY_GROWTH=1 \
+  -s MIN_NODE_VERSION=200000 \
   -s EXPORTED_RUNTIME_METHODS='["callMain","FS","NODEFS","WORKERFS","ENV"]' \
   -s INCOMING_MODULE_JS_API='["noInitialRun","locateFile","preRun"]' \
   -s NO_DISABLE_EXCEPTION_CATCHING=1 \

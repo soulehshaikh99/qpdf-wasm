@@ -41,6 +41,7 @@ The upstream package was last built against qpdf 12.2.0 and Emscripten 3.1.74. T
 | zlib              | pinned commit (pre 1.3.2)                  | **1.3.2**                             |
 | libjpeg-turbo     | ImageMagick mirror (older)                 | **3.2.1** (official `libjpeg-turbo/libjpeg-turbo`) |
 | Node.js (build/test image) | 22                                | **24**                                |
+| Node.js (minimum runtime)  | not stated                        | **20** (`engines`, `-sMIN_NODE_VERSION`) |
 
 Other changes:
 
@@ -147,6 +148,8 @@ if (exitCode === 0 || exitCode === 3) {
 ## Usage recipes
 
 ### Node.js
+
+Requires **Node.js 20 or newer**.
 
 Mount a real directory with `NODEFS` so qpdf reads and writes your disk directly:
 

@@ -12,7 +12,10 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "mocha": "^10.0.0"
+    "mocha": "^12.0.3"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "dependencies": {},
   "repository": {
