@@ -16,7 +16,8 @@ describe("all", function () {
   it("should report a version", async function () {
     const { code, out } = await run(["--version"]);
     assert.equal(code, 0);
-    assert.match(out, /qpdf version \d+\.\d+\.\d+/);
+    // Program name comes from process.argv[1] (e.g. "mocha"), so match only the version.
+    assert.match(out, /version \d+\.\d+\.\d+/);
   });
 
   it("should remove pdf pages", async function () {
@@ -101,11 +102,10 @@ describe("all", function () {
     ]);
     assert.equal(enc.code, 0);
 
-    // exit 0 = password required
-    assert.equal(
-      (await run(["--requires-password", "out/encrypted.pdf"])).code,
-      0
-    );
+    // --is-encrypted: exit 0 = encrypted, 2 = not encrypted
+    assert.equal((await run(["--is-encrypted", "out/encrypted.pdf"])).code, 0);
+    // Opening without the password must fail
+    assert.equal((await run(["--check", "out/encrypted.pdf"])).code, 2);
 
     const dec = await run([
       "--password=user",
@@ -115,11 +115,8 @@ describe("all", function () {
     ]);
     assert.equal(dec.code, 0);
 
-    // exit 2 = not encrypted
-    assert.equal(
-      (await run(["--requires-password", "out/decrypted.pdf"])).code,
-      2
-    );
+    assert.equal((await run(["--is-encrypted", "out/decrypted.pdf"])).code, 2);
+    assert.equal((await run(["--check", "out/decrypted.pdf"])).code, 0);
   });
 
   it("should linearize", async function () {
@@ -150,8 +147,10 @@ describe("all", function () {
   it("should allow callMain more than once on one instance", async function () {
     const mod = await Module();
     mount(mod);
-    const first = capture(() => mod.callMain(["--check", SAMPLE]));
-    const second = capture(() => mod.callMain(["--check", SAMPLE]));
+    // Not `--check`: sample.pdf has broken linearization hints, so it exits 3 (warnings).
+    const pages = (out) => [SAMPLE, "--pages", ".", "1", "--", out];
+    const first = capture(() => mod.callMain(pages("out/reuse-1.pdf")));
+    const second = capture(() => mod.callMain(pages("out/reuse-2.pdf")));
     assert.equal(first.code, 0);
     assert.equal(second.code, 0);
   });
