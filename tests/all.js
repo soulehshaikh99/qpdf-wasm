@@ -119,6 +119,17 @@ describe("all", function () {
     assert.equal((await run(["--check", "out/decrypted.pdf"])).code, 0);
   });
 
+  // Recovery relies on libqpdf's internal try/catch (needs -fexceptions at compile time).
+  it("should recover a PDF with a broken xref", async function () {
+    const good = buildImagePdf(8, 8).toString("latin1");
+    const broken = good.replace(/startxref\n\d+/, "startxref\n999999");
+    await fs.writeFile(path.join(OUT, "broken.pdf"), broken, "latin1");
+
+    const fixed = await run(["out/broken.pdf", "out/recovered.pdf"]);
+    assert.equal(fixed.code, 3, "expected success with warnings");
+    assert.equal((await run(["--check", "out/recovered.pdf"])).code, 0);
+  });
+
   it("should linearize", async function () {
     const lin = await run([SAMPLE, "--linearize", "out/linearized.pdf"]);
     assert.equal(lin.code, 0);

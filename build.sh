@@ -16,7 +16,9 @@ export LDFLAGS="-L$OUT_DIR/lib"
 export PKG_CONFIG_PATH="$OUT_DIR/lib/pkgconfig"
 export EM_PKG_CONFIG_PATH="$PKG_CONFIG_PATH"
 export CFLAGS="$EMCC_FLAGS_RELEASE"
-export CXXFLAGS="$CFLAGS"
+# -fexceptions: libqpdf relies on internal try/catch (password checks, damaged-file
+# recovery). Emscripten strips catch blocks unless enabled at compile AND link time.
+export CXXFLAGS="$CFLAGS -fexceptions"
 
 mkdir -p "$OUT_DIR"
 
